@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -36,7 +34,6 @@ func initRun(cmd *cobra.Command, args []string) error {
 	viper.Set("subscriptionUrl", subscriptionURL)
 	viper.Set("v2rayConfigPath", "/etc/v2ray/config.json")
 	if err := viper.WriteConfigAs(cfgFile); err != nil {
-		log.Print("1231231242421123123")
 		return err
 	}
 

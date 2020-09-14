@@ -33,6 +33,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/xmwilldo/v2ray-sub/cmd/raysub/config"
+	"github.com/xmwilldo/v2ray-sub/cmd/raysub/validate"
 	"github.com/xmwilldo/v2ray-sub/version"
 )
 
@@ -46,13 +47,14 @@ var (
 		Use:     "raysub",
 		Short:   "update v2ray's config by subscription url",
 		Long:    description,
-		RunE:    runE,
+		RunE:    validate.SubCommandExists,
 		Version: version.Version,
 	}
 )
 
 const (
-	DefautConfigFile = "/etc/raysub/config.yml"
+	DefautConfigFile  = "/etc/raysub/config.yml"
+	DefaultConfigPath = "/etc/raysub"
 )
 
 func init() {
@@ -71,9 +73,7 @@ func initConfig() {
 		cfgFile = DefautConfigFile
 	}
 
-	cfgFileStrs := strings.Split(cfgFile, "/")
-	configPath := "/" + cfgFileStrs[1] + "/" + cfgFileStrs[2]
-	log.Println("configPath:", configPath)
+	configPath := DefaultConfigPath
 	if isExist := exists(configPath); !isExist {
 		if err := os.Mkdir(configPath, 0644); err != nil {
 			log.Println(err)
