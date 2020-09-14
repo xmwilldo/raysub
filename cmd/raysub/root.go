@@ -102,6 +102,7 @@ func runE(cmd *cobra.Command, args []string) error {
 	log.Println("get all proxy configs by subscription url...")
 	subscriptionUrl := viper.GetString("subscriptionUrl")
 	v2rayConfigPath := viper.GetString("v2rayConfigPath")
+	log.Println("subscriptionUrl:", subscriptionUrl, "v2rayConfigPath:", v2rayConfigPath)
 	proxyConfigs, err := getAllProxyConfigs(subscriptionUrl)
 	if err != nil {
 		log.Println(err)
