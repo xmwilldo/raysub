@@ -72,7 +72,7 @@ func initConfig() {
 	}
 
 	cfgFileStrs := strings.Split(cfgFile, "/")
-	configPath := cfgFileStrs[1] + "/" + cfgFileStrs[2]
+	configPath := "/" + cfgFileStrs[1] + "/" + cfgFileStrs[2]
 	log.Println("configPath:", configPath)
 	if isExist := exists(configPath); !isExist {
 		if err := os.Mkdir(configPath, 0644); err != nil {
