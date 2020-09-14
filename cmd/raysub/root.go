@@ -73,9 +73,9 @@ func initConfigFile() {
 		os.Exit(1)
 	}
 
-	//if cfgFile == "" {
-	//
-	//}
+	if cfgFile == "" {
+		cfgFile = "/etc/raysub/config.yml"
+	}
 
 	if _, err := os.Create(DefautConfigPath); err != nil {
 		log.Println(err)
