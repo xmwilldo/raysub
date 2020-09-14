@@ -51,27 +51,40 @@ var (
 	}
 )
 
+const (
+	DefautConfigPath = "/etc/raysub/config.yml"
+)
+
 func init() {
 	cobra.OnInitialize(
 		initConfigFile,
 	)
 
-	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "/etc/raysub/config.yml", "raysub config path")
+	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "raysub config path")
 	//rootCmd.PersistentFlags().StringVarP(&url, "url", "u", "", "subscription url")
 	//rootCmd.MarkPersistentFlagRequired("url")
 	//rootCmd.Flags().StringVarP(&configPath, "config", "c", "/etc/v2ray/config.json", "v2ray config path")
 }
 
 func initConfigFile() {
-	configPath := "/etc/raysub"
-	if err := os.Mkdir(configPath, 0644); err != nil {
+	//configPath := "/etc/raysub"
+	//if err := os.Mkdir(configPath, 0644); err != nil {
+	//	log.Println(err)
+	//	os.Exit(1)
+	//}
+
+	//if cfgFile == "" {
+	//
+	//}
+
+	if _, err := os.Create(DefautConfigPath); err != nil {
 		log.Println(err)
 		os.Exit(1)
 	}
 	// Use config file from the flag.
 	// Search config in home directory with name ".cobra" (without extension).
-	viper.AddConfigPath(configPath)
-	viper.SetConfigName("config.yml")
+	//viper.AddConfigPath(configPath)
+	viper.SetConfigName(DefautConfigPath)
 
 	viper.AutomaticEnv()
 
