@@ -52,39 +52,44 @@ var (
 )
 
 const (
-	DefautConfigPath = "/etc/raysub/config.yml"
+	DefautConfigFile = "/etc/raysub/config.yml"
 )
 
 func init() {
 	cobra.OnInitialize(
-		initConfigFile,
+		initConfig,
 	)
 
-	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "raysub config path")
+	//rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "raysub config path.[default: /etc/raysub/config.yml]")
 	//rootCmd.PersistentFlags().StringVarP(&url, "url", "u", "", "subscription url")
 	//rootCmd.MarkPersistentFlagRequired("url")
 	//rootCmd.Flags().StringVarP(&configPath, "config", "c", "/etc/v2ray/config.json", "v2ray config path")
 }
 
-func initConfigFile() {
-	configPath := "/etc/raysub"
-	if err := os.Mkdir(configPath, 0644); err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-
+func initConfig() {
 	if cfgFile == "" {
-		cfgFile = "/etc/raysub/config.yml"
+		cfgFile = DefautConfigFile
 	}
 
-	if _, err := os.Create(DefautConfigPath); err != nil {
-		log.Println(err)
-		os.Exit(1)
+	cfgFileStrs := strings.Split(cfgFile, "/")
+	configPath := cfgFileStrs[1] + "/" + cfgFileStrs[2]
+	log.Println("configPath:", configPath)
+	if isExist := exists(configPath); !isExist {
+		if err := os.Mkdir(configPath, 0644); err != nil {
+			log.Println(err)
+			os.Exit(1)
+		}
 	}
-	// Use config file from the flag.
-	// Search config in home directory with name ".cobra" (without extension).
-	//viper.AddConfigPath(configPath)
-	viper.SetConfigName(DefautConfigPath)
+
+	if isExist := exists(cfgFile); !isExist {
+		if _, err := os.Create(DefautConfigFile); err != nil {
+			log.Println(err)
+			os.Exit(1)
+		}
+	}
+
+	viper.AddConfigPath(configPath)
+	viper.SetConfigName("config")
 
 	viper.AutomaticEnv()
 
@@ -278,6 +283,17 @@ func restartService() (int, error) {
 	}
 
 	return res, nil
+}
+
+func exists(path string) bool {
+	_, err := os.Stat(path) //os.Stat获取文件信息
+	if err != nil {
+		if os.IsExist(err) {
+			return true
+		}
+		return false
+	}
+	return true
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
