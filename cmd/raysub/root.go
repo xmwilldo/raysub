@@ -67,11 +67,11 @@ func init() {
 }
 
 func initConfigFile() {
-	//configPath := "/etc/raysub"
-	//if err := os.Mkdir(configPath, 0644); err != nil {
-	//	log.Println(err)
-	//	os.Exit(1)
-	//}
+	configPath := "/etc/raysub"
+	if err := os.Mkdir(configPath, 0644); err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
 
 	//if cfgFile == "" {
 	//
