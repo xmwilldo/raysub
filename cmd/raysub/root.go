@@ -30,7 +30,6 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/xmwilldo/v2ray-sub/cmd/raysub/config"
@@ -54,32 +53,25 @@ var (
 
 func init() {
 	cobra.OnInitialize(
-		initConfig,
+		initConfigFile,
 	)
 
-	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "/Users/will/Tmp/test-raysub-config.yml", "raysub config path")
+	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "/etc/raysub/config.yml", "raysub config path")
 	//rootCmd.PersistentFlags().StringVarP(&url, "url", "u", "", "subscription url")
 	//rootCmd.MarkPersistentFlagRequired("url")
 	//rootCmd.Flags().StringVarP(&configPath, "config", "c", "/etc/v2ray/config.json", "v2ray config path")
 }
 
-func initConfig() {
-	log.Println("cfgfile:", cfgFile)
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			log.Println(err)
-			os.Exit(1)
-		}
-
-		// Search config in home directory with name ".cobra" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".cobra")
+func initConfigFile() {
+	configPath := "/etc/raysub"
+	if err := os.Mkdir(configPath, 0644); err != nil {
+		log.Println(err)
+		os.Exit(1)
 	}
+	// Use config file from the flag.
+	// Search config in home directory with name ".cobra" (without extension).
+	viper.AddConfigPath(configPath)
+	viper.SetConfigName("config.yml")
 
 	viper.AutomaticEnv()
 
