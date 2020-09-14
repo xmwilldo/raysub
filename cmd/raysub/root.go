@@ -19,6 +19,7 @@ import (
 	"bufio"
 	base64 "encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -29,14 +30,15 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/xmwilldo/v2ray-sub/cmd/raysub/config"
 	"github.com/xmwilldo/v2ray-sub/version"
 )
 
 var (
-	url        string
-	configPath string
+	cfgFile string
 
 	description = ``
 
@@ -51,14 +53,46 @@ var (
 )
 
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&url, "url", "u", "", "subscription url")
-	rootCmd.MarkFlagRequired("url")
-	rootCmd.Flags().StringVarP(&configPath, "config", "c", "/etc/v2ray/config.json", "v2ray config path")
+	cobra.OnInitialize(
+		initConfig,
+	)
+
+	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "/Users/will/Tmp/test-raysub-config.yml", "raysub config path")
+	//rootCmd.PersistentFlags().StringVarP(&url, "url", "u", "", "subscription url")
+	//rootCmd.MarkPersistentFlagRequired("url")
+	//rootCmd.Flags().StringVarP(&configPath, "config", "c", "/etc/v2ray/config.json", "v2ray config path")
+}
+
+func initConfig() {
+	log.Println("cfgfile:", cfgFile)
+	if cfgFile != "" {
+		// Use config file from the flag.
+		viper.SetConfigFile(cfgFile)
+	} else {
+		// Find home directory.
+		home, err := homedir.Dir()
+		if err != nil {
+			log.Println(err)
+			os.Exit(1)
+		}
+
+		// Search config in home directory with name ".cobra" (without extension).
+		viper.AddConfigPath(home)
+		viper.SetConfigName(".cobra")
+	}
+
+	viper.AutomaticEnv()
+
+	if err := viper.ReadInConfig(); err == nil {
+		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	}
 }
 
 func runE(cmd *cobra.Command, args []string) error {
 	log.Println("get all proxy configs by subscription url...")
-	proxyConfigs, err := getAllProxyConfigs(url)
+	subscriptionUrl := viper.GetString("subscriptionUrl")
+	v2rayConfigPath := viper.GetString("v2rayConfigPath")
+	proxyConfigs, err := getAllProxyConfigs(subscriptionUrl)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -69,7 +103,7 @@ func runE(cmd *cobra.Command, args []string) error {
 	wantProxyConfig := getFastestProxy(proxyConfigs)
 
 	log.Println("modify v2ray config...")
-	contentB, err := readFile(configPath)
+	contentB, err := readFile(v2rayConfigPath)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -111,7 +145,7 @@ func runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := writeToFile(configPath, outputContent); err != nil {
+	if err := writeToFile(v2rayConfigPath, outputContent); err != nil {
 		log.Println(err)
 		return err
 	} else {

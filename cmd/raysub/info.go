@@ -14,7 +14,6 @@ var (
 		Short: "",
 		Long:  "",
 		RunE:  info,
-		Args:  cobra.MinimumNArgs(1),
 	}
 )
 
