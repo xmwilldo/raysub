@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	initCommand = cobra.Command{
+	initCommand = &cobra.Command{
 		Use:   "init",
 		Short: "",
 		Long:  "",
@@ -19,7 +19,7 @@ var (
 
 func init() {
 	registry.Commands = append(registry.Commands, registry.CliCommad{
-		Command: infoCommand,
+		Command: initCommand,
 	})
 	initFlags(initCommand.Flags())
 }
